@@ -6,6 +6,12 @@ Note: This library is provided with absolutely no guarantees from myself or any 
 
 ## How to Use
 
+### Install the Package
+
+```
+npm install @brianmmdev/faunaservice
+```
+
 ### Creating the Service Instance
 
 The service is exported as a class, so you'll need to create an instance to use it. Pass in your Fauna secret for your database.
