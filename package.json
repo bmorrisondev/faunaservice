@@ -1,6 +1,6 @@
 {
-  "name": "faunaservice",
-  "version": "1.0.0",
+  "name": "@brianmmdev/faunaservice",
+  "version": "1.0.1",
   "description": "A simple wrapper around CRUD operations for FaunaDB",
   "main": "main.js",
   "scripts": {
