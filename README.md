@@ -64,12 +64,11 @@ let updatedRecord = await _faunaService.updateRecord('COLLECTION_NAME', recordId
 
 ### Get a Single Record
 
-Fetching a record requires an index to be created with one field to query on. The result will be a flattened version of the record (meaning the Ref ID will be returned as `id` in the data)
+The result will be a flattened version of the record (meaning the Ref ID will be returned as `id` in the data)
 
 ```js
-let queriedValue = 'someValue'
-
-let record = await _faunaService.getRecordByIndex('INDEX_NAME', queriedValue)
+let recordId = '123123123123'
+let record = await _faunaService.getRecordById('COLLECTION_NAME', recordId)
 
 // Returns:
 // {
@@ -79,12 +78,12 @@ let record = await _faunaService.getRecordByIndex('INDEX_NAME', queriedValue)
 // }
 ```
 
-### Fetch Records From an Index
+### List Records in a Collection
 
-Fetching multiple records requires an index with no queryable fields to be defined. The result will be an array of flattened records, same as above.
+The result will be an array of flattened records, same as above.
 
 ```js
-let records = await _faunaService.fetchRecordsInIndex('INDEX_NAME')
+let records = await _faunaService.listRecords('COLLECTION_NAME')
 
 // Returns:
 // [{
