@@ -2,8 +2,14 @@ const faunadb = require('faunadb')
 const q = faunadb.query;
 
 module.exports = class FaunaService {
-  constructor(faunaSecret) {
-    this.serverClient = new faunadb.Client({secret: faunaSecret})
+  constructor(faunaSecret, domain) {
+    let opts = {
+      secret: faunaSecret
+    }
+    if(domain) {
+      opts.domain = domain
+    }
+    this.serverClient = new faunadb.Client(opts)
   }
 
   async createRecord(collectionName, data) {
@@ -39,6 +45,7 @@ module.exports = class FaunaService {
       return recordsData
     } catch (err) {
       console.error('FaunaService.listRecords:', err.toString())
+      throw err
     }
   }
 
@@ -47,32 +54,34 @@ module.exports = class FaunaService {
       const record = await this.serverClient.query(
         q.Get(
           q.Ref(
-            q.Collection(collectionName), 
+            q.Collection(collectionName),
             recordId
           )
         )
       )
-      
+
       let recordData = record.data
       recordData.id = record.ref.id
       return recordData
     } catch (err) {
       console.error('FaunaService.getRecordById:', err.toString())
+      throw err
     }
   }
-  
+
   async deleteRecord(collectionName, recordId) {
     try {
       await this.serverClient.query(
         q.Delete(
           q.Ref(
-            q.Collection(collectionName), 
+            q.Collection(collectionName),
             recordId
           )
         )
       )
     } catch (err) {
       console.error('FaunaService.deleteRecord:', err.toString())
+      throw err
     }
   }
 
@@ -81,7 +90,7 @@ module.exports = class FaunaService {
       let updated = await this.serverClient.query(
         q.Update(
           q.Ref(
-            q.Collection(collectionName), 
+            q.Collection(collectionName),
             recordId,
           ),
           {
@@ -94,6 +103,7 @@ module.exports = class FaunaService {
       return recordData
     } catch (err) {
       console.error('FaunaService.updateRecord:', err.toString())
+      throw err
     }
   }
 
@@ -112,18 +122,28 @@ module.exports = class FaunaService {
       return recordData
     } catch (err) {
       console.error('FaunaService.getRecordByIndex:', err.toString())
+      throw err
     }
   }
 
-  async fetchRecordsInIndex(indexName) {
+  async fetchRecordsInIndex(indexName, value) {
     try {
-      let records = await this.serverClient.query(
-        q.Map(
-          q.Paginate(q.Match(q.Index(indexName))),
-          q.Lambda("X", q.Get(q.Var("X")))
+      let records
+      if(value) {
+        records = await this.serverClient.query(
+          q.Map(
+            q.Paginate(q.Match(q.Index(indexName), value)),
+            q.Lambda("X", q.Get(q.Var("X")))
+          )
         )
-      )
-      let recordsData = []
+      } else {
+        records = await this.serverClient.query(
+          q.Map(
+            q.Paginate(q.Match(q.Index(indexName))),
+            q.Lambda("X", q.Get(q.Var("X")))
+          )
+        )
+      }
       if(records && records.data && records.data.length > 0) {
         recordsData = records.data.map(el => {
           return {
@@ -135,6 +155,7 @@ module.exports = class FaunaService {
       return recordsData
     } catch (err) {
       console.error('FaunaService.fetchRecordsInIndex:', err.toString())
+      throw err
     }
   }
 }
